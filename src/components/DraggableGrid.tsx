@@ -85,7 +85,10 @@ const DraggableGrid: React.FC<GridProps> = memo(
 
     if (!rows || !columns || rows <= 0 || columns <= 0) {
       return (
-        <Text style={{ alignSelf: "center", margin: 24 }}>
+        <Text
+          testID="draggable-grid-empty"
+          style={{ alignSelf: "center", margin: 24 }}
+        >
           Grid Size must be greater than 0
         </Text>
       );
@@ -98,6 +101,7 @@ const DraggableGrid: React.FC<GridProps> = memo(
           debounceSetSize({ width, height });
         }}
         style={styles.container}
+        testID="draggable-grid"
       >
         {size &&
           flattenedPositions?.map((pos) => (

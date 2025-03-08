@@ -6,12 +6,12 @@ export interface GridItem {
 }
 
 export interface GridConfig {
-    columns?: number; // number of columns
-    rows?: number;    // number of rows
-    gap?: number;     // Gap between items and edges
+    columns?: number | undefined; // number of columns
+    rows?: number | undefined;    // number of rows
+    gap?: number | undefined;     // Gap between items and edges
     baseColor: Color;
-    containerWidth?: number;
-    containerHeight?: number;
+    containerWidth?: number | undefined;
+    containerHeight?: number | undefined;
 }
 
 export type RectPosition = {

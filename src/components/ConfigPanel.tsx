@@ -43,7 +43,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = memo(
     const [tempGap, setTempGap] = useState((config.gap || "").toString());
 
     const handleConfigChange = useCallback(
-      debounce((config: GridConfig) => {
+      debounce((config: Partial<GridConfig>) => {
         onConfigChange(config);
       }, 100),
       [onConfigChange]
@@ -80,7 +80,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = memo(
     }, [config]);
 
     return (
-      <View style={styles.container}>
+      <View style={styles.container} testID="config-panel">
         <View style={styles.titleContainer}>
           <Text style={[styles.titleChar, { color: "#FFB6C1" }]}>P</Text>
           <Text style={[styles.titleChar, { color: "#B6E3FF" }]}>a</Text>
@@ -98,6 +98,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = memo(
           <View style={styles.column}>
             <Text style={styles.label}>Grid Size</Text>
             <TextInput
+              testID="columns-input"
               style={styles.input}
               value={tempRow}
               onChangeText={handleSizeChange}
@@ -109,6 +110,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = memo(
           <View style={styles.column}>
             <Text style={styles.label}>Grid Gap</Text>
             <TextInput
+              testID="gap-input"
               style={styles.input}
               value={tempGap}
               onChangeText={handleGapChange}
@@ -123,6 +125,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = memo(
           contentContainerStyle={styles.colorsContainer}
           showsHorizontalScrollIndicator={false}
           horizontal
+          testID="color-scroll"
         >
           {COLOR_OPTIONS.map((color) => (
             <TouchableOpacity

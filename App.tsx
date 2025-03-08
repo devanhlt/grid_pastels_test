@@ -10,10 +10,13 @@ import {
 } from "react-native-reanimated";
 import { GridConfig } from "./src/types";
 
-configureReanimatedLogger({
-  level: ReanimatedLogLevel.warn,
-  strict: false,
-});
+// Only configure logger in non-test environment
+if (process.env.NODE_ENV !== "test") {
+  configureReanimatedLogger({
+    level: ReanimatedLogLevel.warn,
+    strict: false,
+  });
+}
 
 const DEFAULT_CONFIG: GridConfig = {
   columns: 3,
