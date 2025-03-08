@@ -1,19 +1,22 @@
-import React, { useMemo, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useMemo, useEffect, useState, memo, useCallback } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
-  useAnimatedStyle,
+  runOnJS,
+  useAnimatedReaction,
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
 import { generatePastelColors } from "../utils/colorUtils";
 import { MatrixPosition, Position, Size } from "../types";
 import { GridItem } from "./DraggableGridItem";
+import { debounce } from "lodash";
 
 interface GridProps {
-  columns: number;
-  rows: number;
+  columns?: number;
+  rows?: number;
   baseColor: string;
-  gap: number;
+  gap?: number;
+  forceReload: boolean;
 }
 
 const initializeMatrix = (
@@ -35,6 +38,7 @@ const initializeMatrix = (
         py: y,
         color: colors[colorIndex++],
         id: `${x}:${y}`,
+        key: `${x}_${y}_${baseColor}_${columns}_${rows}`,
       });
     }
     matrix.push(row);
@@ -43,73 +47,91 @@ const initializeMatrix = (
   return matrix;
 };
 
-const DraggableGrid: React.FC<GridProps> = ({
-  columns,
-  rows,
-  baseColor,
-  gap,
-}) => {
-  const [size, setSize] = useState<Size | undefined>(undefined);
+const DraggableGrid: React.FC<GridProps> = memo(
+  ({ columns, rows, baseColor, gap, forceReload }) => {
+    const [size, setSize] = useState<Size | undefined>(undefined);
+    const [flattenedPositions, setFlattenedPositions] = useState<
+      Position[] | undefined
+    >([]);
 
-  const initialMatrix = useMemo(
-    () => initializeMatrix(columns, rows, baseColor),
-    [columns, rows, baseColor]
-  );
+    const debounceSetSize = useCallback(
+      debounce((size: Size) => {
+        setSize(size);
+      }, 100),
+      []
+    );
 
-  const positions = useSharedValue<MatrixPosition>(initialMatrix);
+    const initialMatrix = useMemo(
+      () => initializeMatrix(columns || 0, rows || 0, baseColor),
+      [columns, rows, baseColor]
+    );
 
-  useEffect(() => {
-    positions.value = initialMatrix;
-  }, [initialMatrix]);
+    const positions = useSharedValue<MatrixPosition>(initialMatrix);
 
-  const flattenedPositions = useDerivedValue(() => {
-    return positions.value.flat();
-  });
+    useEffect(() => {
+      positions.value = initializeMatrix(columns || 0, rows || 0, baseColor);
+    }, [forceReload]);
 
-  const style = useAnimatedStyle(
-    () => ({
-      padding: gap,
-      width: size?.width,
-      height: size?.height,
-    }),
-    [size, gap]
-  );
+    useEffect(() => {
+      positions.value = initialMatrix;
+    }, [initialMatrix]);
 
-  if (rows <= 0 || columns <= 0 || gap < 0) {
-    return <></>;
+    useAnimatedReaction(
+      () => positions.value,
+      (positions) => {
+        runOnJS(setFlattenedPositions)(positions.flat());
+      }
+    );
+
+    if (!rows || !columns || rows <= 0 || columns <= 0) {
+      return (
+        <Text style={{ alignSelf: "center", margin: 24 }}>
+          Grid Size must be greater than 0
+        </Text>
+      );
+    }
+
+    return (
+      <View
+        onLayout={(event) => {
+          const { width, height } = event.nativeEvent.layout;
+          debounceSetSize({ width, height });
+        }}
+        style={styles.container}
+      >
+        {size &&
+          flattenedPositions?.map((pos) => (
+            <GridItem
+              color={baseColor}
+              key={`${pos.key}_${gap}`}
+              positions={positions}
+              id={pos.id}
+              containerWidth={size?.width}
+              containerHeight={size?.height}
+              columns={columns}
+              rows={rows}
+              gap={gap || 0}
+            />
+          ))}
+      </View>
+    );
+  },
+  (prev, curr) => {
+    return (
+      curr.baseColor === prev.baseColor &&
+      curr.columns === prev.columns &&
+      curr.rows === prev.rows &&
+      curr.gap === prev.gap &&
+      prev.forceReload === curr.forceReload
+    );
   }
-
-  return (
-    <View
-      onLayout={(event) => {
-        const { width, height } = event.nativeEvent.layout;
-        !size && setSize({ width, height });
-      }}
-      style={[styles.container, style]}
-    >
-      {size &&
-        flattenedPositions.value.map((pos, index) => (
-          <GridItem
-            key={index}
-            positions={positions}
-            id={pos.id}
-            containerWidth={size?.width}
-            containerHeight={size?.height}
-            columns={columns}
-            rows={rows}
-            gap={gap}
-          />
-        ))}
-    </View>
-  );
-};
+);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    margin: 12,
     borderRadius: 8,
-    position: "relative",
     alignSelf: "stretch",
   },
 });

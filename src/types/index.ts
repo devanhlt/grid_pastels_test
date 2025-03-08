@@ -6,10 +6,10 @@ export interface GridItem {
 }
 
 export interface GridConfig {
-    columns: number; // number of columns
-    rows: number;    // number of rows
-    gap: number;     // Gap between items and edges
-    baseColor: string;
+    columns?: number; // number of columns
+    rows?: number;    // number of rows
+    gap?: number;     // Gap between items and edges
+    baseColor: Color;
     containerWidth?: number;
     containerHeight?: number;
 }
@@ -29,6 +29,12 @@ export type Position = {
     py: number; // hàng
     color: string;
     id: string;
+    key: string;
+};
+
+export type Color = {
+    name: string;
+    code: string;
 };
 
 export type MatrixPosition = Position[][];
