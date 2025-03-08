@@ -17,7 +17,7 @@ configureReanimatedLogger({
 
 export default function App() {
   const { config, updateConfig } = useGridState({
-    columns: 5,
+    columns: 3,
     rows: 5,
     gap: 10,
     baseColor: "#FF5252",
@@ -29,7 +29,7 @@ export default function App() {
         <ConfigPanel config={config} onConfigChange={updateConfig} />
         <DraggableGrid
           columns={config.columns}
-          rows={3}
+          rows={config.rows}
           baseColor={config.baseColor}
           gap={config.gap}
         />

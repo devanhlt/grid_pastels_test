@@ -25,8 +25,8 @@ export type Size = {
 };
 
 export type Position = {
-    px: number;
-    py: number;
+    px: number; // cột
+    py: number; // hàng
     color: string;
     id: string;
 };

@@ -13,7 +13,7 @@ import {
   PanGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
 import { MatrixPosition, Position } from "../types";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text } from "react-native";
 
 type ItemProps = {
   positions: SharedValue<MatrixPosition>;
@@ -69,7 +69,7 @@ const getMatrixPosition = (
 
 const cell1IsBefore = (cell1: Position, cell2: Position) => {
   "worklet";
-  return cell1.px < cell2.px || (cell1.px === cell2.px && cell1.py < cell2.py);
+  return cell1.py < cell2.py || (cell1.py === cell2.py && cell1.px < cell2.px);
 };
 
 const cellIsTheSame = (cell1: Position, cell2: Position) => {
@@ -92,46 +92,50 @@ const moveCell = (
   "worklet";
   const newMatrix = matrix.map((row) => [...row]);
 
-  const targetCell = newMatrix[newPx][newPy];
-  const maxY = columns - 1;
+  const targetCell = newMatrix[newPy][newPx];
+  const cotMax = columns - 1;
 
   if (cell1IsBefore(currentCell, targetCell)) {
-    for (let x = currentCell.px; x <= targetCell.px; x++) {
-      for (let y = 0; y < columns; y++) {
-        const point = newMatrix[x][y];
+    for (let hang = currentCell.py; hang <= targetCell.py; hang++) {
+      for (let cot = 0; cot < columns; cot++) {
+        const point = newMatrix[hang][cot];
         if (
           isInRange(point, currentCell, targetCell) ||
           cellIsTheSame(point, targetCell)
         ) {
-          const nY = y - 1;
-          if (nY < 0) {
-            newMatrix[x - 1][maxY] = { ...point, px: x - 1, py: maxY };
+          const cotMoi = cot - 1;
+          if (cotMoi < 0) {
+            newMatrix[hang - 1][cotMax] = {
+              ...point,
+              px: cotMax,
+              py: hang - 1,
+            };
           } else {
-            newMatrix[x][nY] = { ...point, px: x, py: nY };
+            newMatrix[hang][cotMoi] = { ...point, px: cotMoi, py: hang };
           }
         }
       }
     }
   } else if (cell1IsBefore(targetCell, currentCell)) {
-    for (let x = currentCell.px; x >= targetCell.px; x--) {
-      for (let y = maxY; y >= 0; y--) {
-        const point = newMatrix[x][y];
+    for (let hang = currentCell.py; hang >= targetCell.py; hang--) {
+      for (let cot = cotMax; cot >= 0; cot--) {
+        const point = newMatrix[hang][cot];
         if (
           isInRange(point, targetCell, currentCell) ||
           cellIsTheSame(point, targetCell)
         ) {
-          const nY = y + 1;
-          if (nY > maxY) {
-            newMatrix[x + 1][0] = { ...point, px: x + 1, py: 0 };
+          const cotMoi = cot + 1;
+          if (cotMoi > cotMax) {
+            newMatrix[hang + 1][0] = { ...point, px: 0, py: hang + 1 };
           } else {
-            newMatrix[x][nY] = { ...point, px: x, py: nY };
+            newMatrix[hang][cotMoi] = { ...point, px: cotMoi, py: hang };
           }
         }
       }
     }
   }
 
-  newMatrix[newPx][newPy] = {
+  newMatrix[newPy][newPx] = {
     ...currentCell,
     px: newPx,
     py: newPy,
@@ -285,7 +289,9 @@ export const GridItem: React.FC<ItemProps> = ({
 
   return (
     <PanGestureHandler onGestureEvent={gestureHandler}>
-      <Animated.View style={[styles.item, animatedStyle]} />
+      <Animated.View style={[styles.item, animatedStyle]}>
+        <Text>{id}</Text>
+      </Animated.View>
     </PanGestureHandler>
   );
 };
@@ -294,5 +300,7 @@ const styles = StyleSheet.create({
   item: {
     borderRadius: 8,
     shadowOffset: { width: 0, height: 2 },
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

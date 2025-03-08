@@ -27,9 +27,9 @@ const initializeMatrix = (
   const matrix: MatrixPosition = [];
 
   let colorIndex = 0;
-  for (let x = 0; x < rows; x++) {
+  for (let y = 0; y < rows; y++) {
     const row: Position[] = [];
-    for (let y = 0; y < columns; y++) {
+    for (let x = 0; x < columns; x++) {
       row.push({
         px: x,
         py: y,
