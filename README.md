@@ -2,6 +2,13 @@
 
 A React Native tablet application that allows users to create and customize beautiful pastel-colored grids. Users can configure grid parameters, select base colors, and rearrange grid items through an intuitive drag-and-drop interface.
 
+# Result:
+
+<video width="320" height="240" controls>
+  <source src="assets/video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 ## Key Features
 
 - Interactive grid configuration
@@ -89,6 +96,23 @@ PastelGrid/
 ├── index.ts       # Entry point
 └── tests/         # Test files
 ```
+
+## How to Draw and Move?
+
+# Drawing the Grid
+
+![Drawing Grid](./assets/draw.jpg)
+
+# Moving Cells
+
+![Moving Cells](./assets/move.jpg)
+
+# Technical Implementation
+
+# The drag and drop system uses:
+
+- `PanGestureHandler` from `react-native-gesture-handler` to detect gestures and handle touch interactions
+- `react-native-reanimated` for smooth and performant animations, enabling seamless cell movement
 
 ## License
 
